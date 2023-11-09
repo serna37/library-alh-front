@@ -1,4 +1,4 @@
-# doc-template
+# library-alh-front
 #### App Profile
 <!-- Badges -->
 <table>
@@ -18,9 +18,6 @@
       <img src="https://img.shields.io/badge/-Docker-EEE.svg?logo=docker&style=flat">
     </td>
     <td>
-      <img src="https://img.shields.io/badge/-HTML5-333.svg?logo=html5&style=flat">
-      <img src="https://img.shields.io/badge/-CSS3-1572B6.svg?logo=css3&style=flat">
-      <br>
       <img src="https://img.shields.io/badge/-JavaScript-276DC3.svg?logo=javascript&style=flat">
       <img src="https://img.shields.io/badge/-Node.js-555.svg?logo=nodedotjs&style=flat">
       <img src="https://img.shields.io/badge/-React-555.svg?logo=react&style=flat">
