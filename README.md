@@ -78,5 +78,5 @@ npm install react-router-dom
 npm install @mui/lab @mui/material @emotion/react @emotion/styled
 npm install @mui/icons-material
 npm install axios
-npm install --save react-infinite-scroll-component
+npm install react-infinite-scroller --save
 ```
