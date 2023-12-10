@@ -11,40 +11,40 @@ import {red} from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
 export default function BookCard({title, date, publisher, author, encImg}) {
-  const [_title] = useState(title)
-  const [_date] = useState(date)
-  const [_publisher] = useState(publisher)
-  const [_author] = useState(author)
-  const [_encImg] = useState(encImg)
-  return (
-    <Card sx={{maxWidth: 345}}>
-      <CardHeader
-        avatar={
-          <Avatar sx={{bgcolor: red[500]}} aria-label="book">
-            {_publisher}
-          </Avatar>
-        }
-        title={_title}
-        subheader={_date}
-      />
-      <CardMedia
-        component="img"
-        height="194"
-        src={`data:image/png;base64, ${_encImg}`}
-        alt="book image"
-      />
-      <CardContent>
-        <Typography variant="body2" color="text.secondary">
-          {_author}
-        </Typography>
-      </CardContent>
+    const [_title] = useState(title)
+    const [_date] = useState(date)
+    const [_publisher] = useState(publisher)
+    const [_author] = useState(author)
+    const [_encImg] = useState(encImg)
+    return (
+        <Card sx={{maxWidth: 345}}>
+            <CardHeader
+                avatar={
+                    <Avatar sx={{bgcolor: red[500]}} aria-label="book">
+                        {_publisher}
+                    </Avatar>
+                }
+                title={_title}
+                subheader={_date}
+            />
+            <CardMedia
+                component="img"
+                height="194"
+                src={`data:image/png;base64, ${_encImg}`}
+                alt="book image"
+            />
+            <CardContent>
+                <Typography variant="body2" color="text.secondary">
+                    {_author}
+                </Typography>
+            </CardContent>
 
-      <CardActions disableSpacing>
-        {/**  TODO add function */}
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
-        </IconButton>
-      </CardActions>
-    </Card>
-  );
+            <CardActions disableSpacing>
+                {/**  TODO add function */}
+                <IconButton aria-label="add to favorites">
+                    <FavoriteIcon />
+                </IconButton>
+            </CardActions>
+        </Card>
+    );
 }
