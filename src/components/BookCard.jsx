@@ -7,25 +7,32 @@ import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
+import Divider from '@mui/material/Divider';
 import {red} from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
-export default function BookCard({title, date, publisher, author, encImg}) {
+export default function BookCard({title, date, publisher, author, encImg, pubImg, attrs}) {
     const [_title] = useState(title)
     const [_date] = useState(date)
     const [_publisher] = useState(publisher)
     const [_author] = useState(author)
     const [_encImg] = useState(encImg)
+    const [_pubImg] = useState(pubImg)
+    const [_attrs] = useState(attrs)
+
+    const handleClick = () => {
+        console.info('You clicked the Chip.');
+    };
+
     return (
         <Card sx={{maxWidth: 345}}>
             <CardHeader
                 avatar={
-                    <Avatar sx={{bgcolor: red[500]}} aria-label="book">
-                        {_publisher}
-                    </Avatar>
+                    <Avatar alt="publisher" src={`data:image/png;base64, ${_pubImg}`} />
                 }
                 title={_title}
-                subheader={_date}
             />
             <CardMedia
                 component="img"
@@ -35,15 +42,24 @@ export default function BookCard({title, date, publisher, author, encImg}) {
             />
             <CardContent>
                 <Typography variant="body2" color="text.secondary">
-                    {_author}
+                    Author: {_author}<br />
+                    <Divider />
+                    Publisher: {_publisher}<br />
+                    PublishedAt:<br />{_date}<br />
+                    <Divider /><br />
                 </Typography>
+                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                    {/**  TODO add function */}
+                    <IconButton aria-label="add to favorites">
+                        <FavoriteIcon />
+                    </IconButton>
+                    {_attrs.split(",").map((v, idx) => (
+                        <Chip label={v} variant="outlined" onClick={handleClick} />
+                    ))}
+                </Stack>
             </CardContent>
 
             <CardActions disableSpacing>
-                {/**  TODO add function */}
-                <IconButton aria-label="add to favorites">
-                    <FavoriteIcon />
-                </IconButton>
             </CardActions>
         </Card>
     );

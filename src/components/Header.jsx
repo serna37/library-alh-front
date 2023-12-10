@@ -81,6 +81,7 @@ export default function Header() {
           >
             {/** TODO tag attr search*/}
             <MenuIcon />
+            {/** TODO サイドバー開き、詳細な検索条件*/}
           </IconButton>
           <Typography
             variant="h6"
@@ -96,7 +97,7 @@ export default function Header() {
             {/** TODO add search function*/}
             </SearchIconWrapper>
             <StyledInputBase
-              placeholder="Search…"
+              placeholder="Search Title"
               inputProps={{'aria-label': 'search'}}
             />
           </Search>
