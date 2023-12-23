@@ -82,8 +82,14 @@ const Home = () => {
     const [list, setList] = useState([])
 
     function getBooks(pageNo) {
+        // TODO search condition
         //axios.post('https://neras-sta.com/mk6/signin', {
         axios.post('http://localhost:8282/book/search', {
+            book_name: '',
+            author_name: '',
+            publisher_name: '',
+            published_from: '',
+            published_to: '',
             offset: list.length
         })
             .then(res => {
@@ -104,9 +110,12 @@ const Home = () => {
         getBooks()
     }, [])
 
+    // TODO app bar ref
+    // https://mui.com/material-ui/react-app-bar/
     return (
         <Grid>
             <Header />
+            {/** TODO fix head */}
             <Box>
                 <InfiniteScroll
                     dataLength={list.length} //現在のデータの長さ

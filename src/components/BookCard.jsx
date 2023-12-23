@@ -5,13 +5,11 @@ import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
-import {red} from '@mui/material/colors';
-import FavoriteIcon from '@mui/icons-material/Favorite';
+//import FavoriteIcon from '@mui/icons-material/Favorite';
 
 export default function BookCard({title, date, publisher, author, encImg, pubImg, attrs}) {
     const [_title] = useState(title)
@@ -23,7 +21,7 @@ export default function BookCard({title, date, publisher, author, encImg, pubImg
     const [_attrs] = useState(attrs)
 
     const handleClick = () => {
-        console.info('You clicked the Chip.');
+        // noop
     };
 
     return (
@@ -50,10 +48,12 @@ export default function BookCard({title, date, publisher, author, encImg, pubImg
                 </Typography>
                 <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                     {/**  TODO add function */}
+                    {/**
                     <IconButton aria-label="add to favorites">
                         <FavoriteIcon />
                     </IconButton>
-                    {_attrs.split(",").map((v, idx) => (
+                    */}
+                    {_attrs.split(",").map((v, _) => (
                         <Chip label={v} variant="outlined" onClick={handleClick} />
                     ))}
                 </Stack>
