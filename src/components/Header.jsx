@@ -68,65 +68,57 @@ const StyledBadge = styled(Badge)(({theme}) => ({
     },
 }));
 
-export default function Header() {
+export default function Header({ff}) {
     return (
-        <Box sx={{flexGrow: 1}}>
-            <AppBar position="sticky">
-                <Toolbar>
+        <AppBar position="sticky">
+            <Toolbar>
+                <IconButton
+                    size="large"
+                    edge="start"
+                    color="inherit"
+                    aria-label="open drawer"
+                    onClick={ff}
+                    sx={{mr: 2}}
+                >
+                    {/** TODO tag attr search*/}
+                    <MenuIcon />
+                    {/** TODO サイドバー開き、詳細な検索条件*/}
+                </IconButton>
+                <Typography
+                    variant="h6"
+                    noWrap
+                    component="div"
+                    sx={{display: {xs: 'none', sm: 'block'}}}
+                >
+                    Library for ALH
+                </Typography>
+                <Box sx={{flexGrow: 1}} />
+                <Box sx={{display: {xs: 'none', md: 'flex'}}}>
+                    {/** TODO 寄贈ページへ*/}
+                    <IconButton size="large" aria-label="donate books" color="inherit">
+                        <VolunteerActivismIcon />
+                    </IconButton>
+                    {/** TODO 一次借りページに行く*/}
+                    <IconButton size="large" aria-label="cart" color="inherit">
+                        <StyledBadge badgeContent={4} color="secondary">
+                            <ShoppingCartIcon />
+                        </StyledBadge>
+                    </IconButton>
                     <IconButton
                         size="large"
-                        edge="start"
+                        edge="end"
+                        aria-label="account of current user"
+                        //aria-controls={menuId}
+                        aria-haspopup="true"
+                        //onClick={handleProfileMenuOpen}
                         color="inherit"
-                        aria-label="open drawer"
-                        sx={{mr: 2}}
                     >
-                        {/** TODO tag attr search*/}
-                        <MenuIcon />
-                        {/** TODO サイドバー開き、詳細な検索条件*/}
+                        {/** TODO ログインしてなければログインボタンアイコンにする*/}
+                        <AccountCircle />
+                        {/** TODO プロフィール画面へ遷移*/}
                     </IconButton>
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="div"
-                        sx={{display: {xs: 'none', sm: 'block'}}}
-                    >
-                        Library for ALH
-                    </Typography>
-                    <Search>
-                        <SearchIconWrapper>
-                            <SearchIcon />
-                            {/** TODO add search function*/}
-                        </SearchIconWrapper>
-                        <TextField label="Search Title" variant="standard" />
-                    </Search>
-                    <Box sx={{flexGrow: 1}} />
-                    <Box sx={{display: {xs: 'none', md: 'flex'}}}>
-                        {/** TODO 寄贈ページへ*/}
-                        <IconButton size="large" aria-label="donate books" color="inherit">
-                            <VolunteerActivismIcon />
-                        </IconButton>
-                        {/** TODO 一次借りページに行く*/}
-                        <IconButton size="large" aria-label="cart" color="inherit">
-                            <StyledBadge badgeContent={4} color="secondary">
-                                <ShoppingCartIcon />
-                            </StyledBadge>
-                        </IconButton>
-                        <IconButton
-                            size="large"
-                            edge="end"
-                            aria-label="account of current user"
-                            //aria-controls={menuId}
-                            aria-haspopup="true"
-                            //onClick={handleProfileMenuOpen}
-                            color="inherit"
-                        >
-                            {/** TODO ログインしてなければログインボタンアイコンにする*/}
-                            <AccountCircle />
-                            {/** TODO プロフィール画面へ遷移*/}
-                        </IconButton>
-                    </Box>
-                </Toolbar>
-            </AppBar>
-        </Box>
+                </Box>
+            </Toolbar>
+        </AppBar>
     );
 }

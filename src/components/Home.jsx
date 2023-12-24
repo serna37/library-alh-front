@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import {useNavigate} from 'react-router-dom'
+import Drawer from '@mui/material/Drawer';
 //import {useCookies} from 'react-cookie'
 import {Avatar, Box, Button, Grid, Paper, TextField, Typography, Snackbar, IconButton, Alert} from "@mui/material"
 import CloseIcon from '@mui/icons-material/Close'
@@ -11,9 +12,13 @@ import BookCard from './BookCard'
 import Header from './Header'
 import {Ajax} from '../util/Ajax'
 import Skeleton from '@mui/material/Skeleton';
+import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
+import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
+import {DatePicker} from '@mui/x-date-pickers/DatePicker';
+import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
 
-const Home = () => {
+const Home = ({host}) => {
     const navigate = useNavigate()
     // ページ遷移サンプル
     //navigate('/notes')
@@ -80,16 +85,29 @@ const Home = () => {
 
 
     const [list, setList] = useState([])
+    const [bookName, setBookName] = useState('')
+    const [authorName, setAuthorName] = useState('')
+    const [publisherName, setPublisherName] = useState('')
+    const [publishedFrom, setPublishedFrom] = useState('')
+    const [publishedTo, setPublishedTo] = useState('')
 
     function getBooks(pageNo) {
-        // TODO search condition
-        //axios.post('https://neras-sta.com/mk6/signin', {
-        axios.post('http://localhost:8282/book/search', {
-            book_name: '',
-            author_name: '',
-            publisher_name: '',
-            published_from: '',
-            published_to: '',
+        let from = publishedFrom == '' ? '' : new Date(publishedFrom).toLocaleDateString()
+        let to = publishedTo == '' ? '' : new Date(publishedTo).toLocaleDateString()
+        if (from != '') {
+            from = from.split('/')
+            from = from[0] + '-' + from[1].padStart(2, '0') + '-' + from[2].padStart(2, '0')
+        }
+        if (to != '') {
+            to = to.split('/')
+            to = to[0] + '-' + to[1].padStart(2, '0') + '-' + to[2].padStart(2, '0')
+        }
+        axios.post(host + '/book/search', {
+            book_name: bookName,
+            author_name: authorName,
+            publisher_name: publisherName,
+            published_from: from,
+            published_to: to,
             offset: list.length
         })
             .then(res => {
@@ -106,16 +124,84 @@ const Home = () => {
         //}, 1000);
     }
 
+    function clearResult() {
+        setList([])
+    }
+
+    function search() {
+        clearResult()
+        setHasNext(true)
+        //getBooks()
+    }
+
     useEffect(() => {
         getBooks()
     }, [])
 
-    // TODO app bar ref
-    // https://mui.com/material-ui/react-app-bar/
+    const [drawerFlg, setDrawerFlg] = useState(false)
+    const toggleDrawer = () => setDrawerFlg(!drawerFlg)
     return (
         <Grid>
-            <Header />
-            {/** TODO fix head */}
+            <Header ff={toggleDrawer} />
+            <Drawer
+                anchor={'left'}
+                open={drawerFlg}
+                onClose={toggleDrawer}
+            >
+                <Grid>
+                    <Typography variant="h4" component="h2">
+                        Fuzzy Search
+                    </Typography>
+                    <Divider />
+
+                    <Box
+                        component="form"
+                        sx={{'& > :not(style)': {m: 1, width: '25ch'}, }}
+                        noValidate
+                        autoComplete="off"
+                    >
+                        <TextField label="book name" variant="standard" value={bookName} onChange={e => setBookName(e.target.value)} />
+                    </Box>
+                    <Box
+                        component="form"
+                        sx={{'& > :not(style)': {m: 1, width: '25ch'}, }}
+                        noValidate
+                        autoComplete="off"
+                    >
+                        <TextField label="author name" variant="standard" value={authorName} onChange={e => setAuthorName(e.target.value)} />
+                    </Box>
+                    <Box
+                        component="form"
+                        sx={{'& > :not(style)': {m: 1, width: '25ch'}, }}
+                        noValidate
+                        autoComplete="off"
+                    >
+                        <TextField label="publisher name" variant="standard" value={publisherName} onChange={e => setPublisherName(e.target.value)} />
+                    </Box>
+                    <Divider />
+                    <Box
+                        component="form"
+                        sx={{'& > :not(style)': {m: 1, width: '25ch'}, }}
+                        noValidate
+                        autoComplete="off"
+                    >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker label="published from" value={publishedFrom} onChange={e => setPublishedFrom(e)} />
+                        </LocalizationProvider>
+                    </Box>
+                    <Box
+                        component="form"
+                        sx={{'& > :not(style)': {m: 1, width: '25ch'}, }}
+                        noValidate
+                        autoComplete="off"
+                    >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker label="published to" value={publishedTo} onChange={e => setPublishedTo(e)} />
+                        </LocalizationProvider>
+                    </Box>
+                    <Button variant="contained" onClick={search}>Search</Button>
+                </Grid>
+            </Drawer>
             <Box>
                 <InfiniteScroll
                     dataLength={list.length} //現在のデータの長さ
