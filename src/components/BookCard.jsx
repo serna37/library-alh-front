@@ -1,5 +1,6 @@
 import React, {useState} from 'react'
 import Card from '@mui/material/Card';
+import {CardActionArea} from '@mui/material';
 import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
@@ -11,7 +12,9 @@ import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 //import FavoriteIcon from '@mui/icons-material/Favorite';
 
-export default function BookCard({title, date, publisher, author, encImg, pubImg, attrs}) {
+export default function BookCard({idx, func, title, date, publisher, author, encImg, pubImg, attrs}) {
+    const [_idx] = useState(idx)
+    //const [_func] = useState(func)
     const [_title] = useState(title)
     const [_date] = useState(date)
     const [_publisher] = useState(publisher)
@@ -32,12 +35,19 @@ export default function BookCard({title, date, publisher, author, encImg, pubImg
                 }
                 title={_title}
             />
-            <CardMedia
-                component="img"
-                height="194"
-                src={`data:image/png;base64, ${_encImg}`}
-                alt="book image"
-            />
+            <CardActionArea onClick={() => {
+                console.log(func)
+                func(_idx)
+                //console.log(_func)
+                //console.log(_func(_idx))
+            }}>
+                <CardMedia
+                    component="img"
+                    height="350"
+                    src={`data:image/png;base64, ${_encImg}`}
+                    alt="book image"
+                />
+            </CardActionArea>
             <CardContent>
                 <Typography variant="body2" color="text.secondary">
                     Author: {_author}<br />
@@ -47,7 +57,7 @@ export default function BookCard({title, date, publisher, author, encImg, pubImg
                     <Divider /><br />
                 </Typography>
                 <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-                    {/**  TODO add function */}
+                    {/**  TODO Open detail dialog */}
                     {/**
                     <IconButton aria-label="add to favorites">
                         <FavoriteIcon />

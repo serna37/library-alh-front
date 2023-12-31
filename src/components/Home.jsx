@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios'
+import {calling} from '../util/Axios.js'
 import {useNavigate} from 'react-router-dom'
 import Drawer from '@mui/material/Drawer';
 //import {useCookies} from 'react-cookie'
@@ -102,7 +103,7 @@ const Home = ({host}) => {
             to = to.split('/')
             to = to[0] + '-' + to[1].padStart(2, '0') + '-' + to[2].padStart(2, '0')
         }
-        axios.post(host + '/book/search', {
+        calling('/book/search', {
             book_name: bookName,
             author_name: authorName,
             publisher_name: publisherName,
@@ -140,9 +141,36 @@ const Home = ({host}) => {
 
     const [drawerFlg, setDrawerFlg] = useState(false)
     const toggleDrawer = () => setDrawerFlg(!drawerFlg)
+
+    const [profileOpenFlg, setProfileOpenFlg] = useState(false)
+    const [profileName, setProfileName] = useState("")
+    const [profileMail, setProfileMail] = useState("")
+    const [profileData, setProfileData] = useState([])
+    const toggleProfile = () => {
+        if (!profileOpenFlg) {
+            calling('/user/profile').then(res => {
+                console.log("profile get")
+                console.log(res.data)
+                setProfileData(res.data.data)
+                setProfileName(res.data.data[0].user_name)
+                setProfileMail(res.data.data[0].mail_address)
+            }).catch(e => console.log(e))
+        }
+        setProfileOpenFlg(!profileOpenFlg)
+    }
+
+    const [detailFlg, setDetailFlg] = useState(false)
+    const toggleDetail = () => setDetailFlg(!detailFlg)
+    const [detailData, setDetailData] = useState({})
+    const detailOpen = idx => {
+        setDetailFlg(true)
+        let data = list[idx]
+        setDetailData(data)
+    }
+
     return (
         <Grid>
-            <Header ff={toggleDrawer} />
+            <Header host={host} ff={toggleDrawer} isProfile={false} profile={toggleProfile} />
             <Drawer
                 anchor={'left'}
                 open={drawerFlg}
@@ -213,6 +241,8 @@ const Home = ({host}) => {
                         {list.map((v, index) => (
                             <Grid item xs={1} sm={1} md={1} key={v.id}>
                                 <BookCard
+                                    idx={index}
+                                    func={detailOpen}
                                     title={v.book_name}
                                     date={v.published_at}
                                     publisher={v.publisher_name}
@@ -226,7 +256,48 @@ const Home = ({host}) => {
                     </Grid>
                 </InfiniteScroll>
             </Box>
-            {/** TODO 検索条件 */}
+            <Drawer
+                anchor={'bottom'}
+                open={detailFlg}
+                onClose={toggleDetail}
+            >
+                <Grid>
+                    <Typography variant="h4" component="h2">
+                        detail view
+                    </Typography>
+                    <Divider />
+                    <BookCard
+                        idx={-1}
+                        func={() => {}}
+                        title={detailData.book_name}
+                        date={detailData.published_at}
+                        publisher={detailData.publisher_name}
+                        author={detailData.author_name}
+                        encImg={detailData.book_img}
+                        pubImg={detailData.publisher_img}
+                        attrs={detailData.attr}
+                    ></BookCard>
+
+                </Grid>
+            </Drawer>
+            <Drawer
+                anchor={'right'}
+                open={profileOpenFlg}
+                onClose={toggleProfile}
+            >
+                <Grid>
+                    <Typography variant="h4" component="h2">
+                        Profile
+                    </Typography>
+                    <Divider />
+                    <Box sx={{'& > :not(style)': {m: 1, width: '25ch'}, }} >
+                        <TextField label="mail" variant="standard" value={profileName} />
+                    </Box>
+                    <Box sx={{'& > :not(style)': {m: 1, width: '25ch'}, }} >
+                        <TextField label="mail" variant="standard" value={profileMail} />
+                    </Box>
+                </Grid>
+            </Drawer>
         </Grid>
     )
 }

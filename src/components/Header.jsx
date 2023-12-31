@@ -1,4 +1,7 @@
 import * as React from 'react';
+import {Link, useNavigate} from "react-router-dom";
+import axios from 'axios'
+import {calling} from '../util/Axios.js'
 import {styled, alpha} from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -68,22 +71,42 @@ const StyledBadge = styled(Badge)(({theme}) => ({
     },
 }));
 
-export default function Header({ff}) {
+export default function Header({host, ff, isProfile, profile}) {
+    const history = useNavigate();
+
+    function userProfile() {
+        // get user profile
+        calling('/ping', {})
+            .then(res => {
+                // if success -> go user profile view
+                profile()
+                console.log("success")
+                console.log(res)
+            })
+            .catch(e => {
+                // if error -> go login view
+                history("/sign");
+                console.log("error")
+                console.log(e)
+            })
+    }
+
     return (
         <AppBar position="sticky">
             <Toolbar>
-                <IconButton
-                    size="large"
-                    edge="start"
-                    color="inherit"
-                    aria-label="open drawer"
-                    onClick={ff}
-                    sx={{mr: 2}}
-                >
-                    {/** TODO tag attr search*/}
-                    <MenuIcon />
-                    {/** TODO サイドバー開き、詳細な検索条件*/}
-                </IconButton>
+                {!isProfile ?
+                    <IconButton
+                        size="large"
+                        edge="start"
+                        color="inherit"
+                        aria-label="open drawer"
+                        onClick={ff}
+                        sx={{mr: 2}}
+                    >
+                        {/** TODO tag attr search*/}
+                        <MenuIcon />
+                    </IconButton>
+                    : <div></div>}
                 <Typography
                     variant="h6"
                     noWrap
@@ -114,7 +137,7 @@ export default function Header({ff}) {
                         color="inherit"
                     >
                         {/** TODO ログインしてなければログインボタンアイコンにする*/}
-                        <AccountCircle />
+                        <AccountCircle onClick={userProfile} />
                         {/** TODO プロフィール画面へ遷移*/}
                     </IconButton>
                 </Box>
