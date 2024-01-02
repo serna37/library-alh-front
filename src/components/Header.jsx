@@ -122,11 +122,13 @@ export default function Header({host, ff, isProfile, profile}) {
                         <VolunteerActivismIcon />
                     </IconButton>
                     {/** TODO 一次借りページに行く*/}
+                    {/**
                     <IconButton size="large" aria-label="cart" color="inherit">
                         <StyledBadge badgeContent={4} color="secondary">
                             <ShoppingCartIcon />
                         </StyledBadge>
                     </IconButton>
+                    */}
                     <IconButton
                         size="large"
                         edge="end"
@@ -136,9 +138,7 @@ export default function Header({host, ff, isProfile, profile}) {
                         //onClick={handleProfileMenuOpen}
                         color="inherit"
                     >
-                        {/** TODO ログインしてなければログインボタンアイコンにする*/}
                         <AccountCircle onClick={userProfile} />
-                        {/** TODO プロフィール画面へ遷移*/}
                     </IconButton>
                 </Box>
             </Toolbar>
