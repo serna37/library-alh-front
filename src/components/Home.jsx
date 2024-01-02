@@ -2,6 +2,10 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import {calling} from '../util/Axios.js'
 import {useNavigate} from 'react-router-dom'
+import {FixedSizeList} from 'react-window';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 import Drawer from '@mui/material/Drawer';
 //import {useCookies} from 'react-cookie'
 import {Avatar, Box, Button, Grid, Paper, TextField, Typography, Snackbar, IconButton, Alert} from "@mui/material"
@@ -32,6 +36,7 @@ const Home = ({host}) => {
     const [showSignupBtn, setshowSignupBtn] = useState("block")
     const [msg, setMsg] = useState("")
     const [hasNext, setHasNext] = useState(true)
+    const [level, setLevel] = useState("error")
 
     //const [_, setCookie] = useCookies(["authtoken"])
 
@@ -68,21 +73,6 @@ const Home = ({host}) => {
         }
         setOpen(false);
     }
-
-    const action = (
-        <React.Fragment>
-            <Button color="secondary" size="small" onClick={handleClose}>
-            </Button>
-            <IconButton
-                size="small"
-                aria-label="close"
-                color="inherit"
-                onClick={handleClose}
-            >
-                <CloseIcon fontSize="small" />
-            </IconButton>
-        </React.Fragment>
-    );
 
 
     const [list, setList] = useState([])
@@ -146,6 +136,7 @@ const Home = ({host}) => {
     const [profileName, setProfileName] = useState("")
     const [profileMail, setProfileMail] = useState("")
     const [profileData, setProfileData] = useState([])
+    const [rentalState, setRentalState] = useState([])
     const toggleProfile = () => {
         if (!profileOpenFlg) {
             calling('/user/profile').then(res => {
@@ -155,22 +146,106 @@ const Home = ({host}) => {
                 setProfileName(res.data.data[0].user_name)
                 setProfileMail(res.data.data[0].mail_address)
             }).catch(e => console.log(e))
+
+            calling('/user/rentalstate').then(res => {
+                console.log('get rental state')
+                console.log(res.data)
+                setRentalState(res.data.data)
+            }).catch(e => console.log(e))
         }
         setProfileOpenFlg(!profileOpenFlg)
+    }
+    function renderProf(props) {
+        const {index, style} = props;
+        return (
+            <ListItem style={style} key={index} component="div" disablePadding>
+                <ListItemButton>
+                    <ListItemText primary={`${profileData[index].book_name} (${profileData[index].author_name}): ${profileData[index].action}: ${profileData[index].num}`} />
+                </ListItemButton>
+            </ListItem>
+        );
+    }
+    function renderRental(props) {
+        const {index, style} = props;
+        return (
+            <ListItem style={style} key={index} component="div" disablePadding>
+                <ListItemButton>
+                    <ListItemText primary={`${rentalState[index].book_name} (${rentalState[index].author_name}): ${rentalState[index].rent_num}`} />
+                </ListItemButton>
+            </ListItem>
+        );
     }
 
     const [detailFlg, setDetailFlg] = useState(false)
     const toggleDetail = () => setDetailFlg(!detailFlg)
     const [detailData, setDetailData] = useState({})
+    const [remain, setRemain] = useState(0)
+    const [canRental, setCanRental] = useState(false)
+    const [canReturn, setCanReturn] = useState(false)
     const detailOpen = idx => {
-        setDetailFlg(true)
         let data = list[idx]
         setDetailData(data)
+        setCanRental(false)
+        setCanReturn(false)
+        calling('/book/detail', {'book_id': data.id})
+            .then(res => {
+                console.log(res)
+                let num = res.data.num
+                setRemain(num)
+                let token = document.cookie.split(";").map(v => v.trim()).filter(v => v.startsWith("token="))
+                token = token.length === 0 ? "" : token[0].split("=")[1]
+                console.log("~================")
+                console.log(token)
+                let authed = token != ""
+                setCanRental(authed && num != 0)
+                let you_rental = res.data.you_rental
+                setCanReturn(you_rental === 'yes')
+
+                // open detail view
+                setDetailFlg(true)
+            }).catch(e => console.log(e))
+    }
+
+    function book_rental() {
+        calling('/action/rental', {'book_id': detailData.id, 'num': 1})
+            .then(res => {
+                console.log("rental")
+                setLevel("info")
+                setMsg("Rental!!")
+                setOpen(true)
+                if (remain - 1 == 0) {
+                    setCanRental(false)
+                }
+                setRemain(remain - 1)
+            }).catch(e => {
+                console.log(e)
+                setMsg("need sign in")
+                setLevel("error")
+                setOpen(true)
+            })
+    }
+    function book_return() {
+        calling('/action/return', {'book_id': detailData.id, 'num': 1})
+            .then(res => {
+                setRemain(~~remain + 1)
+                setCanReturn(false)
+                setCanRental(false)
+                console.log("return")
+                setLevel("info")
+                setMsg("Return. Thanks")
+                setOpen(true)
+            }).catch(e => {
+                console.log(e)
+                setMsg("need sign in")
+                setLevel("error")
+                setOpen(true)
+            })
     }
 
     return (
         <Grid>
             <Header host={host} ff={toggleDrawer} isProfile={false} profile={toggleProfile} />
+
             <Drawer
                 anchor={'left'}
                 open={drawerFlg}
@@ -262,24 +337,60 @@ const Home = ({host}) => {
                 onClose={toggleDetail}
             >
                 <Grid>
+                    <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
+                        <Alert onClose={handleClose} severity={level} sx={{width: '100%'}}>
+                            {msg}
+                        </Alert>
+                    </Snackbar>
                     <Typography variant="h4" component="h2">
                         detail view
                     </Typography>
                     <Divider />
-                    <BookCard
-                        idx={-1}
-                        func={() => {}}
-                        title={detailData.book_name}
-                        date={detailData.published_at}
-                        publisher={detailData.publisher_name}
-                        author={detailData.author_name}
-                        encImg={detailData.book_img}
-                        pubImg={detailData.publisher_img}
-                        attrs={detailData.attr}
-                    ></BookCard>
-
+                    <Box sx={{display: 'flex', flexDirection: 'row'}}>
+                        <BookCard
+                            idx={detailData.id}
+                            func={() => {}}
+                            title={detailData.book_name}
+                            date={detailData.published_at}
+                            publisher={detailData.publisher_name}
+                            author={detailData.author_name}
+                            encImg={detailData.book_img}
+                            pubImg={detailData.publisher_img}
+                            attrs={detailData.attr}
+                        ></BookCard>
+                        <Box sx={{display: 'flex', flexDirection: 'column', margin: 2}}>
+                            <Box sx={{margin: 1}}>
+                                Stock: {remain}
+                            </Box>
+                            <Divider />
+                            <Box sx={{margin: 1}}>
+                                <Button variant="contained" disabled={!canRental} onClick={book_rental}>
+                                    Rental
+                                </Button>
+                            </Box>
+                            <Divider />
+                            <Box sx={{margin: 1}}>
+                                <Button variant="contained" disabled={!canReturn} onClick={book_return}>
+                                    Return
+                                </Button>
+                            </Box>
+                            <Divider />
+                            <Divider />
+                            <Divider />
+                            <Box sx={{margin: 1, width: 100}}>
+                                <Typography variant="h4" component="h2">
+                                    Commetns
+                                </Typography>
+                                {/**                       TODO FixedSizeList */}
+                                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                            </Box>
+                        </Box>
+                    </Box>
                 </Grid>
-            </Drawer>
+            </Drawer >
             <Drawer
                 anchor={'right'}
                 open={profileOpenFlg}
@@ -291,14 +402,47 @@ const Home = ({host}) => {
                     </Typography>
                     <Divider />
                     <Box sx={{'& > :not(style)': {m: 1, width: '25ch'}, }} >
-                        <TextField label="mail" variant="standard" value={profileName} />
+                        <TextField label="name" variant="standard" value={profileName} />
                     </Box>
                     <Box sx={{'& > :not(style)': {m: 1, width: '25ch'}, }} >
                         <TextField label="mail" variant="standard" value={profileMail} />
                     </Box>
+                    <Divider />
+                    <Typography variant="h4" component="h2">
+                        Rental Status
+                    </Typography>
+                    {rentalState.filter(v => v.book_name != null).length == 0 ? "no data" : ""}
+                    <Box sx={{width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper'}} >
+                        <FixedSizeList
+                            height={400}
+                            width={360}
+                            itemSize={46}
+                            itemCount={rentalState.filter(v => v.book_name != null).length}
+                            overscanCount={5}
+                        >
+                            {renderRental}
+                        </FixedSizeList>
+                    </Box>
+                    <Divider />
+                    <Typography variant="h4" component="h2">
+                        Action History
+                    </Typography>
+                    <Divider />
+                    {profileData.filter(v => v.book_name != null).length == 0 ? "no data" : ""}
+                    <Box sx={{width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper'}} >
+                        <FixedSizeList
+                            height={400}
+                            width={360}
+                            itemSize={46}
+                            itemCount={profileData.filter(v => v.book_name != null).length}
+                            overscanCount={5}
+                        >
+                            {renderProf}
+                        </FixedSizeList>
+                    </Box>
                 </Grid>
             </Drawer>
-        </Grid>
+        </Grid >
     )
 }
 
