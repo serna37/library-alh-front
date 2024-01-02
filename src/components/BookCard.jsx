@@ -57,7 +57,6 @@ export default function BookCard({idx, func, title, date, publisher, author, enc
                     <Divider /><br />
                 </Typography>
                 <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-                    {/**  TODO Open detail dialog */}
                     {/**
                     <IconButton aria-label="add to favorites">
                         <FavoriteIcon />
