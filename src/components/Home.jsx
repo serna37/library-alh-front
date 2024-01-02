@@ -175,6 +175,16 @@ const Home = ({host}) => {
             </ListItem>
         );
     }
+    function renderComments(props) {
+        const {index, style} = props;
+        return (
+            <ListItem style={style} key={index} component="div" disablePadding>
+                <ListItemButton>
+                    <ListItemText primary={`${commentList[index].user_name}「"${commentList[index].comments}"」`} />
+                </ListItemButton>
+            </ListItem>
+        );
+    }
 
     const [detailFlg, setDetailFlg] = useState(false)
     const toggleDetail = () => setDetailFlg(!detailFlg)
@@ -182,6 +192,7 @@ const Home = ({host}) => {
     const [remain, setRemain] = useState(0)
     const [canRental, setCanRental] = useState(false)
     const [canReturn, setCanReturn] = useState(false)
+    const [commentList, setCommentList] = useState([])
     const detailOpen = idx => {
         let data = list[idx]
         setDetailData(data)
@@ -190,12 +201,11 @@ const Home = ({host}) => {
         calling('/book/detail', {'book_id': data.id})
             .then(res => {
                 console.log(res)
+                setCommentList(res.data.comments)
                 let num = res.data.num
                 setRemain(num)
                 let token = document.cookie.split(";").map(v => v.trim()).filter(v => v.startsWith("token="))
                 token = token.length === 0 ? "" : token[0].split("=")[1]
-                console.log("~================")
-                console.log(token)
                 let authed = token != ""
                 setCanRental(authed && num != 0)
                 let you_rental = res.data.you_rental
@@ -234,6 +244,30 @@ const Home = ({host}) => {
                 setLevel("info")
                 setMsg("Return. Thanks")
                 setOpen(true)
+            }).catch(e => {
+                console.log(e)
+                setMsg("need sign in")
+                setLevel("error")
+                setOpen(true)
+            })
+    }
+
+    const [inputComment, setInputComment] = useState("")
+    function sendComment() {
+        if (inputComment == '') {
+            setLevel("error")
+            setMsg("input something")
+            setOpen(true)
+            return
+        }
+        calling('/action/comment', {'book_id': detailData.id, 'comment': inputComment})
+            .then(res => {
+                console.log("add comment")
+                setLevel("info")
+                setMsg("Send comment. Thanks")
+                setOpen(true)
+                setCommentList([...commentList, {'comments': inputComment, 'user_name': res.data.user_name}])
+                setInputComment("")
             }).catch(e => {
                 console.log(e)
                 setMsg("need sign in")
@@ -381,11 +415,34 @@ const Home = ({host}) => {
                                 <Typography variant="h4" component="h2">
                                     Commetns
                                 </Typography>
-                                {/**                       TODO FixedSizeList */}
-                                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                                <Divider />
+                                {commentList.length == 0 ? "no data" : ""}
+                                <Box sx={{width: '100%', height: 200, maxWidth: 360, bgcolor: 'background.paper'}} >
+                                    <FixedSizeList
+                                        height={200}
+                                        width={360}
+                                        itemSize={46}
+                                        itemCount={commentList.length}
+                                        overscanCount={5}
+                                    >
+                                        {renderComments}
+                                    </FixedSizeList>
+                                </Box>
+                            </Box>
+                            <Box sx={{margin: 1, width: 500}}>
+                                <Typography variant="h4" component="h4">
+                                    Add Your Commetns
+                                </Typography>
+                                <Divider />
+                                <Box
+                                    component="form"
+                                    sx={{'& > :not(style)': {m: 1, width: '25ch'}, }}
+                                    noValidate
+                                    autoComplete="off"
+                                >
+                                    <TextField label="commets" variant="outlined" value={inputComment} onChange={e => setInputComment(e.target.value)} />
+                                </Box>
+                                <Button variant="contained" onClick={sendComment}>add comment</Button>
                             </Box>
                         </Box>
                     </Box>
