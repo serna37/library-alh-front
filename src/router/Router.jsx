@@ -3,7 +3,7 @@ import Home from '../components/Home'
 import Sign from '../components/Sign'
 
 export default function Router() {
-    const HOST = window.location.host.startsWith("localhost") ? "http://localhost:8282" : "https://neras-sta.com"
+    const HOST = window.location.host.startsWith("localhost") ? "http://localhost:8282/library" : "https://neras-sta.com/library"
     return (
         <div>
             <BrowserRouter basename={process.env.PUBLIC_URL}>
